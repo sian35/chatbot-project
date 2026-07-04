@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     langsmith_project: str = "default"
 
     # ── LLM Provider 선택 ──
-    llm_provider: Literal["google", "ollama"] = "google"
+    llm_provider: Literal["google", "ollama"]   # = "google"
     
     # google 설정
     google_model: str = "gemini-3.1-flash-lite"

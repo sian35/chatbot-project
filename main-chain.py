@@ -1,31 +1,27 @@
-# chatbot-project/main.py
-import uuid
-
+# chatbot-project/main-chain.py
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from langchain_core.messages import HumanMessage
-
-from src.rag.graph import build_rag_graph
+from src.rag.chain import build_rag_chain
 
 # === 요청 / 응답 스키마 ===
 class QueryRequest(BaseModel):
   question: str
-  thread_id: str | None = None
 
 class QueryResponse(BaseModel):
   answer: str
-  thread_id: str
-
 
 # Lifespan : 앱 생명주기 관리
-# FastAPI 앱 초기화 시점에 인덱싱 + RAG Graph 구성
+# FastAPI 앱 초기화 시점에 인덱싱 + RAG 체인 구성
 
-# ===== LangGraph ======
-@asynccontextmanager
+# ===== LangChain =====
+# build_rag_chain()은 무거운 초기화 작업을 포함하기 때문에 서버가 켜질 때 딱 한번만 실행되게 한다.
+@asynccontextmanager  #진입 시 처리/ 종료 시 처리 를 나누는 데코레이터
 async def lifespan(app: FastAPI):
-  app.state.graph = build_rag_graph()
+  #app.state : FastAPI가 제공하는 앱 전역 저장소
+  #다른 모든 라우트 함수에서 app.state.rag로 접근 가능
+  app.state.rag = build_rag_chain()
   yield
 
 # FastAPI 앱 인스턴스를 생성하면서 lifespan 함수를 등록
@@ -36,11 +32,6 @@ app = FastAPI(lifespan=lifespan)
 # async def 함수는 호출하는 즉시 실행되지 않고, 코루틴 객체를 반환한다.
 # 이 코루틴 객체는 await되거나 이벤트 루프에 의해 스케줄링 되어야 실제로 실행된다.
 @app.post("/query", response_model=QueryResponse)
-def query(req: QueryRequest):
-  thread_id = req.thread_id or str(uuid.uuid4())
-  result = app.state.graph.invoke(
-    {"messages": [HumanMessage(content=req.question)]},
-    config = {"configurable": {"thread_id": thread_id}}
-  )
-  answer = result["messages"][-1].content
-  return QueryResponse(answer=answer, thread_id = thread_id)
+async def query(req: QueryRequest):
+  answer = await app.state.rag.ainvoke(req.question)
+  return QueryResponse(answer=answer)

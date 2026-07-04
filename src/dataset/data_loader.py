@@ -42,3 +42,6 @@ def dir_loader():
     print(f"[INFO] ... Number of Loaded Documents : {len(md_docs)}")
 
     return md_docs
+
+# Load Github MD documents
+# def load_github_md_docs() -> list[Document]:
