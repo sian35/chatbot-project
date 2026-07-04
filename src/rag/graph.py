@@ -1,7 +1,5 @@
-# source/graph.py
+# src/rag/graph.py
 from typing import TypedDict, Annotated
-from source.rag import build_retriever, build_llm
-from source.prompts import SYSTEM_PROMPT
 
 from langchain_core.documents import Document
 from langchain_core.messages import SystemMessage
@@ -9,6 +7,9 @@ from langchain_core.messages import SystemMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
+
+from src.prompts import SYSTEM_PROMPT
+from src.dataset.vector_store import build_retriever, build_llm
 
 class State(TypedDict):
     messages: Annotated[list, add_messages] # add_messages: reducer- 자동으로 리스트에 새로운 메시지를 append

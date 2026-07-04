@@ -4,7 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import model_validator
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent  # settings.py 위치 기준으로 프로젝트 루트 계산
+# settings.py 위치 기준으로 프로젝트 루트 계산
+# src/settings.py → parent(=src) → parent(=프로젝트 루트)
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Pydantic BaseSettings 로 통합 관리 : 실무에서 가장 권장되는 방식
 # 민감/비민감 정보를 나누되, 한 군데에서 타입 검증까지 하면서 관리하는 방식
@@ -27,13 +29,16 @@ class Settings(BaseSettings):
     ollama_model: str = "gemma4:e2b-mlx"
     ollama_base_url: str = "http://localhost:11434"
 
+    # judge llm 설정
+    judge_model: str = "gemini-3.1-flash-lite"
+
     # indexing 관련 설정
     embedding_model: str = "models/gemini-embedding-001"
-    persist_dir: str = "../chroma_db"
+    persist_dir: str = str(BASE_DIR / "chroma_db") #"../chroma_db"
 
     til_collection: str = "sian-til"
-    md_path: str = "./sian-til/*.md"
-    md_dir_path: str = "./sian-til"
+    md_path: str = str(BASE_DIR / "sian-til" / "*.md") # "./sian-til/*.md"
+    md_dir_path: str = str(BASE_DIR / "sian-til") #"./sian-til" # BASE_DIR가 pathlib.Path 객체라서 / 연산자로 경로를 이어붙이기 가능
 
     eval_dataset_name: str = "sian-til-rag-eval"
 

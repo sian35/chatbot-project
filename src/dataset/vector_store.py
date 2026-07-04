@@ -1,78 +1,13 @@
-from langchain_community.document_loaders import TextLoader, DirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+import os
+from dotenv import load_dotenv
+
 from langchain_chroma import Chroma
 
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough #, RunnableParallel
+from src.settings import settings
+from src.dataset.data_loader import dir_loader, chunking
+from src.model import build_embedding
 
-from dotenv import load_dotenv
-import shutil, os
-from glob import glob
-
-from source.settings import settings
-
-load_dotenv()   # .env 파일을 읽어서 os.environ에 등록
-
-def chunking(docs):
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
-    )
-    split_docs = splitter.split_documents(docs)
-    print(f"[INFO] ... Number of chunks: {len(split_docs)}")
-
-    return split_docs
-
-def md_loader():
-    md_paths = sorted(glob(settings.md_path))
-    md_docs = []
-    for p in md_paths:
-        md_docs.extend(TextLoader(p, encoding="utf-8").load())
-    docs = md_docs
-    print(f"[INFO] ... Number of Loaded Documents : {len(docs)}")
-
-    return docs
-
-def dir_loader():
-
-    md_loader = DirectoryLoader(
-        path=settings.md_dir_path,
-        glob="*.md", # 하위 폴더 포함: "**/*.md"
-        loader_cls=TextLoader,
-        loader_kwargs={"encoding": "utf-8"}
-    )
-
-    md_docs = md_loader.load()
-    print(f"[INFO] ... Number of Loaded Documents : {len(md_docs)}")
-
-    return md_docs
-
-def build_llm():
-    print("[INFO] ---- Build LLM ---- ")
-
-    provider = settings.llm_provider.lower()
-    print(f"[INFO] LLM Provider: {provider}")
-    if provider == "ollama":
-        from langchain_ollama import ChatOllama
-        return ChatOllama(
-            model=settings.ollama_model,
-            base_url=settings.ollama_base_url,
-        )
-    return ChatGoogleGenerativeAI(
-        model=settings.google_model,
-        google_api_key=settings.google_api_key,
-    )
-
-
-def build_embedding():
-    # Embedding model
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model=settings.embedding_model,
-        google_api_key=settings.google_api_key,
-    )
-    return embeddings
+#load_dotenv()
 
 #def build_vector_store():  #기존에 vectorDB반환을 retriever반환으로 수정
 def build_retriever():

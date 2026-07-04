@@ -1,16 +1,16 @@
-#평가
-from langsmith.evaluation import evaluate
-from langsmith import Client
+#src/eval.py
+import os
 
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
 
-from source.prompts import JUDGE_PROMPT
-from source.eval.dataset import get_or_create_dataset, preview_dataset
-from source.settings import settings
+from langsmith.evaluation import evaluate
+from langsmith import Client
 
-import os
+from src.prompts import JUDGE_PROMPT
+from src.dataset.eval_dataset import get_or_create_dataset, preview_dataset
+from src.settings import settings
+from src.model import build_judge_llm
 
 # ==================================================
 # 1. 평가자
@@ -77,12 +77,9 @@ def eval_rag(rag):
     loaded = client.read_dataset(dataset_name=settings.eval_dataset_name)
     preview_dataset(client, loaded, 2)
         # ===================
+
     # 평가하는 모델은 평가 받는 모델과 다른 모델을 선택한다.
-    judge_llm = ChatGoogleGenerativeAI(
-            model="gemini-3.1-flash-lite",
-            google_api_key=os.getenv("GOOGLE_API_KEY"),
-        )
-    
+    judge_llm = build_judge_llm()
     # 평가자
     llm_judge = make_llm_judge(judge_llm)
 
