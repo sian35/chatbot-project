@@ -11,7 +11,7 @@ def main():
     print("Hello from rag-project!")
     
     parser = argparse.ArgumentParser(description="LangChain")
-    parser.add_argument('--mode', choices=['chain','smith', 'graph'], help='Choose mode: LangChain, LangSmith, LangGraph')
+    parser.add_argument('--mode', choices=['smith', 'chain', 'graph'], help='Choose mode: LangChain, LangGraph, LangSmith')
     args = parser.parse_args()
 
     if args.mode == "smith":

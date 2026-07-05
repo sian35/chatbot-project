@@ -9,8 +9,7 @@ from src.model import build_embedding
 
 #load_dotenv()
 
-#def build_vector_store():  #기존에 vectorDB반환을 retriever반환으로 수정
-def build_retriever():
+def build_vector_store():
     # Embedding model
     embeddings = build_embedding()
     
@@ -47,4 +46,7 @@ def build_retriever():
 
     print("[INFO] ... Vector DB 저장 완료. ./chroma_db 폴더에 SQLite 인덱스가 생성되었습니다.")
     print("[INFO] ---- Finish Indexing ---- ")
+
+
+def build_retriever(vectorstore):
     return vectorstore.as_retriever(search_kwargs={"k":3})

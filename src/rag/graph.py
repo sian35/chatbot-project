@@ -10,7 +10,7 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 
 from src.prompts import SYSTEM_PROMPT, SYSTEM_PROMPT_LOCAL
-from src.dataset.vector_store import build_retriever
+from src.dataset.vector_store import build_retriever, build_vector_store
 from src.model import build_llm
 from src.settings import settings
 
@@ -19,7 +19,9 @@ class State(TypedDict):
     context: list[Document] #reducer가 없으므로 노드가 반환하는 값으로 덮어쓰기된다. 매 질문마다 새로 검색한 문서로 교체
 
 def build_rag_graph():
-    retriever = build_retriever()
+    vector_store = build_vector_store()
+    retriever = build_retriever(vector_store)
+    
     llm = build_llm()
     
     if settings.llm_provider == "ollama":
