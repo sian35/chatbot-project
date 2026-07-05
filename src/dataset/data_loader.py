@@ -1,9 +1,12 @@
 #src/datset/data_loader.py
-from dotenv import load_dotenv
+import requests
 from glob import glob
+from pathlib import Path
+
 
 from langchain_community.document_loaders import TextLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_core.documents import Document
 
 from src.settings import settings
 
@@ -30,7 +33,7 @@ def md_loader():
     return docs
 
 def dir_loader():
-
+    """디렉토리 안의 모든 *.md 파일을 Document로 로드"""
     md_loader = DirectoryLoader(
         path=settings.md_dir_path,
         glob="*.md", # 하위 폴더 포함: "**/*.md"
@@ -43,5 +46,54 @@ def dir_loader():
 
     return md_docs
 
+# Example
+# GitHub repo to index *.md notes from (default: 100-hours-a-week/alex-notes)
+# GITHUB_REPO=100-hours-a-week/alex-notes
+# GitHub token for accessing the notes repo (needed if it is private)
+# GITHUB_TOKEN=your-github-token
 # Load Github MD documents
-# def load_github_md_docs() -> list[Document]:
+def load_github_md_docs() -> list[Document]:
+    """GitHub 저장소의 모든 *.md 파일을 Document로 로드"""
+    # ==== 1. 인증 헤더 준비 ====
+    headers = {
+        "Accept": "application/vnd.github+json", # GitHub REST API의 응답형식을 JSON으로 지정하는 표준 헤더
+        "X-GitHub-Api-Version": "2022-11-28",   # GitHub API의 버전을 고정
+    }
+    token = settings.github_token
+    if token:   # token이 있을 때만 Authorization 헤더를 추가
+        headers["Authorization"] = f"Bearer {token}"
+
+    # ==== 2. 저장소 기본 정보 조회 (기본 브랜치 확인) ====
+    api_base = f"https://api.github.com/repos/{settings.github_repo}"
+    repo_res = requests.get(api_base, headers=headers, timeout=30)  # GitHub의 저장소 정보 조회 엔드포인트 호출. 저장소의 메타 데이터 반환
+    repo_res.raise_for_status() # HTTP 상태 코드가 4xx/5xx(에러)면 즉시 예외 발생
+    branch = repo_res.json()["default_branch"]  # 응답 JSON에서 기본 브랜치명(main or master)을 꺼낸다.
+
+    # ==== 3. 저장소 전체 파일 트리 조회 ====
+    # GitTrees API 호출 : 이 브랜치의 특정 커밋 시점에 있는 전체 파일/폴더 구조를 반환하는 API
+    tree_res = requests.get(
+        f"{api_base}/git/trees/{branch}?recursive=1", headers=headers, timeout=30
+    )   # ?recursive=1 : 모든 하위 폴더까지 재귀적으로 펼쳐진 전체 파일 목록을 한 번에 받는다.
+    tree_res.raise_for_status()
+
+    # ==== 4. .md 파일만 필터링하며 순회
+    docs = []
+    for entry in tree_res.json()["tree"]:
+        # blob(폴더)이거나 .md가 아니라면(README.md도 건너뜀) 건너뛴다.
+        if entry["type"] != "blob" or not entry["path"].endswith(".md") or entry["path"].endswith("README.md"):
+            continue
+        # 각 파일의 실제 텍스트 내용을 가져오려면 Contents API를 파일마다 개별 호출한다.
+        file_res = requests.get(
+            f"{api_base}/contents/{entry['path']}?ref={branch}",
+            headers={**headers, "Accept": "application/vnd.github.raw+json"},   # 딕셔너리 언패킹 문법: 기존 headers(인증 정보 등)를 그대로 복사하면서, "Accept" 키만 새 값으로 덮어쓴다.
+            timeout=30,                                                         # raw: Contents API는 기본적으로 Base64로 인코딩된 JSON으로 반환하는데 이렇게 지정하면 인코딩 없이 원본 텍스트(raw)를 그대로 응답.
+        )
+        file_res.raise_for_status()
+
+        # ==== 5. Document 객체로 감싸기
+        docs.append(
+            Document(
+                page_content=file_res.text, # raw 형식으로 받았기 때문에, 응답 본문이 마크다운 원문 텍스트이다.
+                metadata={"source": f"{Path(entry['path']).parent.name}/{Path(entry['path']).name}"}, # 춡처 정보: 상위폴더/파일명 (파일명 중복 대비) :: settings.github_repo}/{entry['path'] 저장소명/파일경로
+            )
+        )

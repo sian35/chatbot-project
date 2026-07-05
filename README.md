@@ -28,6 +28,24 @@ chatbot-project/
 ---
 ### 초기 세팅
 1. `.env` ← 설정
+```
+LANGSMITH_TRACING=
+LANGSMITH_ENDPOINT=
+LANGSMITH_API_KEY=
+LANGSMITH_PROJECT=
+
+# LLM 선택: google (기본) 또는 ollama
+LLM_PROVIDER=google
+
+
+# google 사용 시 모델명 (선택)
+GOOGLE_MODEL=gemini-3.1-flash-lite
+GOOGLE_API_KEY=
+# ollama 사용 시 설정 (gemma4:e2b-mlx 가 ollama로 서빙되어야 함)
+OLLAMA_MODEL=gemma4:e2b-mlx
+OLLAMA_BASE_URL=http://localhost:11434
+```
+
 2. `uv sync` ← 의존성 설치  
 (ollama 사용시)  
 3. `ollama serve` ← 서버 띄우기

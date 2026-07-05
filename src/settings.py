@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # ── LLM Provider 선택 ──
     llm_provider: Literal["google", "ollama"]   # = "google"
-    
+
     # google 설정
     google_model: str = "gemini-3.1-flash-lite"
     google_api_key: str | None = None
@@ -28,6 +28,16 @@ class Settings(BaseSettings):
     # ollama 설정
     ollama_model: str = "gemma4:e2b-mlx"
     ollama_base_url: str = "http://localhost:11434"
+
+
+    # ── Embedding Provider 선택 ──
+    embedding_provider: Literal["hugging", "google"]
+    
+    # google 설정
+    google_embedding: str = "gemini-3.1-flash-lite"
+
+    # huggingface 설정
+    hugging_embedding: str = "BAAI/bge-m3"
 
     # judge llm 설정
     judge_model: str = "gemini-3.1-flash-lite"
@@ -39,6 +49,8 @@ class Settings(BaseSettings):
     til_collection: str = "sian-til"
     md_path: str = str(BASE_DIR / "sian-til" / "*.md") # "./sian-til/*.md"
     md_dir_path: str = str(BASE_DIR / "sian-til") #"./sian-til" # BASE_DIR가 pathlib.Path 객체라서 / 연산자로 경로를 이어붙이기 가능
+    github_repo: str = "sian35/KTB4-Sian-TIL"
+    github_token: str | None = None
 
     eval_dataset_name: str = "sian-til-rag-eval"
 

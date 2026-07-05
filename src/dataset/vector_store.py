@@ -23,7 +23,7 @@ def build_vector_store():
             embedding_function=embeddings,  #embedding_function=embeddings는 새 질의를 벡터로 변환할 때 사용할 임베딩 모델
             # 저장된 문서 벡터는 처음 인덱싱할 때 사용한 임베딩 모델 기준으로 만들어졌습니다. 따라서 다시 검색할 때도 같은 임베딩 모델을 사용해야 합니다.
         )
-        return vectorstore.as_retriever(search_kwargs={"k":3})
+        return vectorstore  #.as_retriever(search_kwargs={"k":3})
 
     # ====== Vector DB 존재하지 않으면, Indexing 시작 ======
     print("[INFO] ---- 새 인덱스 생성 ---- ")
