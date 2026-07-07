@@ -8,11 +8,12 @@ from src.rag.graph import build_rag_graph
 from src.eval import eval_rag
 
 def main():
-    print("Hello from rag-project!")
-    
     parser = argparse.ArgumentParser(description="LangChain")
     parser.add_argument('--mode', choices=['smith', 'chain', 'graph'], help='Choose mode: LangChain, LangGraph, LangSmith')
     args = parser.parse_args()
+
+    print("Hello from rag-project!")
+    print(f"{args.mode} mode selected!")
 
     if args.mode == "smith":
         rag = build_rag_chain()

@@ -28,7 +28,7 @@ def md_loader():
     for p in md_paths:
         md_docs.extend(TextLoader(p, encoding="utf-8").load())
     docs = md_docs
-    print(f"[INFO] ... Number of Loaded Documents : {len(docs)}")
+    print(f"[INFO] [FROM MD LIST] ... Number of Loaded Documents : {len(docs)}")
 
     return docs
 
@@ -42,7 +42,7 @@ def dir_loader():
     )
 
     md_docs = md_loader.load()
-    print(f"[INFO] ... Number of Loaded Documents : {len(md_docs)}")
+    print(f"[INFO] [FROM DIRECTORY] ... Number of Loaded Documents : {len(md_docs)}")
 
     return md_docs
 
@@ -52,7 +52,8 @@ def dir_loader():
 # GitHub token for accessing the notes repo (needed if it is private)
 # GITHUB_TOKEN=your-github-token
 # Load Github MD documents
-def load_github_md_docs() -> list[Document]:
+
+def fetch_from_github():
     """GitHub 저장소의 모든 *.md 파일을 Document로 로드"""
     # ==== 1. 인증 헤더 준비 ====
     headers = {
@@ -80,20 +81,49 @@ def load_github_md_docs() -> list[Document]:
     docs = []
     for entry in tree_res.json()["tree"]:
         # blob(폴더)이거나 .md가 아니라면(README.md도 건너뜀) 건너뛴다.
-        if entry["type"] != "blob" or not entry["path"].endswith(".md") or entry["path"].endswith("README.md"):
+        if entry["type"] != "blob" or not entry["path"].endswith(".md") or entry["path"].endswith("README.md") or ("subnotes" in entry["path"]) or ("template" in entry["path"]):
+            #print(f"{entry["path"]} passed")
             continue
+        
+        #src_name = f"{Path(entry['path']).parent.name}/{Path(entry['path']).name}"
+        #print(src_name)
+        # === API 호출 횟수가 많아서 수정 ===
         # 각 파일의 실제 텍스트 내용을 가져오려면 Contents API를 파일마다 개별 호출한다.
+        '''
         file_res = requests.get(
             f"{api_base}/contents/{entry['path']}?ref={branch}",
             headers={**headers, "Accept": "application/vnd.github.raw+json"},   # 딕셔너리 언패킹 문법: 기존 headers(인증 정보 등)를 그대로 복사하면서, "Accept" 키만 새 값으로 덮어쓴다.
             timeout=30,                                                         # raw: Contents API는 기본적으로 Base64로 인코딩된 JSON으로 반환하는데 이렇게 지정하면 인코딩 없이 원본 텍스트(raw)를 그대로 응답.
         )
+        '''
+
+        # === API 호출 대신 Raw URL로 접근 (Rate Limit 소비 없음) (용량이 커짐..?)
+        # URL 구조 https://raw.githubusercontent.com/{유저명}/{저장소명}/{브랜치명}/{파일경로}
+        raw_url = f"https://raw.githubusercontent.com/{settings.github_repo}/{branch}/{entry['path']}"
+        file_res = requests.get(raw_url, timeout=30)    # headers 불필요
+
+        
         file_res.raise_for_status()
 
         # ==== 5. Document 객체로 감싸기
         docs.append(
             Document(
                 page_content=file_res.text, # raw 형식으로 받았기 때문에, 응답 본문이 마크다운 원문 텍스트이다.
-                metadata={"source": f"{Path(entry['path']).parent.name}/{Path(entry['path']).name}"}, # 춡처 정보: 상위폴더/파일명 (파일명 중복 대비) :: settings.github_repo}/{entry['path'] 저장소명/파일경로
+                metadata={"source": entry["path"]}, # 춡처 정보: 상위폴더/파일명 (파일명 중복 대비) :: settings.github_repo}/{entry['path'] 저장소명/파일경로
             )
         )
+
+    return docs
+
+
+def load_github_md_docs(use_cache = True) -> list[Document]:
+    # 캐시가 있으면 GitHub 호출 없이 바로 반환
+
+    docs = fetch_from_github()
+
+    print(f"[INFO] [FROM GITHUB] ... Number of Loaded Documents : {len(docs)}")
+    return docs
+
+
+#docs = load_github_md_docs()
+#print(f"로딩된 Document 수: {len(docs)} (from {settings.github_repo})")

@@ -6,6 +6,7 @@
 |6| 개인 프로젝트의 바닐라 RAG 시스템을 구현한다. |✅|
 |7| 개인 프로젝트의 RAG 시스템을 LangChain 기반으로 구현한다.|✅|
 |8| 개인 프로젝트의 RAG 시스템을 LangGraph 기반으로 구현한다.|✅|
+
 ### 파일 구조
 ```
 chatbot-project/
@@ -51,6 +52,10 @@ OLLAMA_BASE_URL=http://localhost:11434
 3. `ollama serve` ← 서버 띄우기
 4. `ollama pull` ← 올라마 모델 다운로드
 
+```
+사전 indexing
+uv run -m src.dataset.vector_store
+```
 ---
 ### 실행 방법
 > 프로젝트 루트 위치에서 실행하기  

@@ -7,7 +7,6 @@ from src.settings import settings
 
 def build_llm():
     print("[INFO] ---- Build LLM ---- ")
-
     provider = settings.llm_provider.lower()
     print(f"[INFO] LLM Provider: {provider}")
     if provider == "ollama":
@@ -24,12 +23,14 @@ def build_llm():
 
 def build_judge_llm():
     print("[INFO] ---- Build Judge LLM ---- ")
+    print(f"[INFO] LLM Judge Provider: {settings.judge_model}")
     return ChatGoogleGenerativeAI(
             model=settings.judge_model,
             google_api_key=settings.google_api_key,
         )
 
 def build_embedding():
+    print("[INFO] ---- Build Embedding model ---- ")
     # Embedding model
     provider = settings.embedding_provider.lower()
     print(f"[INFO] Embedding Provider: {provider}")

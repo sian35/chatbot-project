@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     judge_model: str = "gemini-3.1-flash-lite"
 
     # indexing 관련 설정
+    doc_source: str = "github"
+
     embedding_model: str = "models/gemini-embedding-001"
     persist_dir: str = str(BASE_DIR / "chroma_db") #"../chroma_db"
 
