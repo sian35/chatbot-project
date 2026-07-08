@@ -3,9 +3,9 @@
 ## Notes
 | Updated Date | 기록 링크 | 해당 날짜 요약 |
 |:---:|---|:---:|
-|260707|[Tasks]()||
-|260707|[Trouble Shooting]()|메모리 문제|
-|260707|[Questions]()||
+|260707|[Tasks](tasks.md)||
+|260707|[Trouble Shooting](trouble-shooting.md)|메모리 문제|
+|260707|[Questions](questions.md)||
 
 
 ## Weekly Retrospect
