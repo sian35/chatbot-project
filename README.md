@@ -1,13 +1,13 @@
-## chatbot-project
-### 프로젝트 과정
-| week | 과제 | 진행 |
-|:---:|---|:---:|
-|5| 다음 단어를 생성하는 Transformer Model을 이용해 챗봇을 구현한다.|✅|
-|6| 개인 프로젝트의 바닐라 RAG 시스템을 구현한다. |✅|
-|7| 개인 프로젝트의 RAG 시스템을 LangChain 기반으로 구현한다.|✅|
-|8| 개인 프로젝트의 RAG 시스템을 LangGraph 기반으로 구현한다.|✅|
+# chatbot-project
+## 프로젝트 과정
+| week | 과제 | 진행 | 회고 |
+|:---:|---|:---:|:---:|
+|5| 다음 단어를 생성하는 Transformer Model을 이용해 챗봇을 구현한다.|✅|[회고]()|
+|6| 개인 프로젝트의 바닐라 RAG 시스템을 구현한다. |✅|[회고]()|
+|7| 개인 프로젝트의 RAG 시스템을 LangChain 기반으로 구현한다.|✅|[회고]()|
+|8| 개인 프로젝트의 RAG 시스템을 LangGraph 기반으로 구현한다.|✅|[회고]()|
 
-### 파일 구조
+## 파일 구조
 ```
 chatbot-project/
 ├── docs/            회고 기록
@@ -27,7 +27,7 @@ chatbot-project/
 └──── settings.py               settings
 ```
 ---
-### 초기 세팅
+## 초기 세팅
 1. `.env` ← 설정
 ```
 LANGSMITH_TRACING=
@@ -57,7 +57,7 @@ OLLAMA_BASE_URL=http://localhost:11434
 uv run -m src.dataset.vector_store
 ```
 ---
-### 실행 방법
+## 실행 방법
 > 프로젝트 루트 위치에서 실행하기  
 
 FastAPI 

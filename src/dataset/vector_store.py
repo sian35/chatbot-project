@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 
 from src.settings import settings
-from src.dataset.data_loader import dir_loader, chunking, load_github_md_docs
+from src.dataset.data_loader import dir_loader, chunking, load_github_md_docs, pdf_loader
 from src.model import build_embedding
 
 #load_dotenv()
@@ -16,6 +16,9 @@ def indexing(embeddings):
         
     elif settings.doc_source == "github":
         docs = load_github_md_docs()
+    
+    elif settings.doc_source == "pdf":
+        docs = pdf_loader()
 
     # Chunking 필수
     split_docs = chunking(docs)
@@ -28,7 +31,7 @@ def indexing(embeddings):
     vectorstore = Chroma.from_documents(
         split_docs,
         embeddings,
-        collection_name=settings.til_collection,             # 한 persist_directory 안에 여러 컬렉션을 분리 저장할 수 있다
+        collection_name=settings.collection_name,             # 한 persist_directory 안에 여러 컬렉션을 분리 저장할 수 있다
         persist_directory=settings.persist_dir, # Chroma가 해당 폴더에 SQLite 파일로 인덱스를 저장. 프로세스를 다시 시작해도 이 폴더에서 인덱스를 다시 열 수 있다.
     )
 
@@ -49,7 +52,7 @@ def build_vector_store():
         # ====== Vector DB 존재하면, 기존 인덱스 로드 (from_documents 호출 없이) ======
         print(f"[INFO] ---- 기존 인덱스 재로드 ---- ")
         vectorstore = Chroma(
-            collection_name=settings.til_collection,
+            collection_name=settings.collection_name,
             persist_directory=settings.persist_dir,
             embedding_function=embeddings,  #embedding_function=embeddings는 새 질의를 벡터로 변환할 때 사용할 임베딩 모델
             # 저장된 문서 벡터는 처음 인덱싱할 때 사용한 임베딩 모델 기준으로 만들어졌습니다. 따라서 다시 검색할 때도 같은 임베딩 모델을 사용해야 합니다.

@@ -1,10 +1,10 @@
 #src/datset/data_loader.py
-import requests
+import requests, os, urllib
 from glob import glob
 from pathlib import Path
 
 
-from langchain_community.document_loaders import TextLoader, DirectoryLoader
+from langchain_community.document_loaders import TextLoader, PyPDFLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
@@ -31,6 +31,34 @@ def md_loader():
     print(f"[INFO] [FROM MD LIST] ... Number of Loaded Documents : {len(docs)}")
 
     return docs
+
+def pdf_preprocess(docs):
+
+    if "경제금융" in settings.pdf_name:
+        docs = docs[13:]    #0~12번 문서까지는 목차라서 제거
+        docs = docs[:-1]    #마지막 문서 제거
+
+    print(f"[INFO] [AFTER PDF PREPROCESSING] ... Number of Documents : {len(docs)}")
+    return docs
+    
+def pdf_loader():
+    if not os.path.exists(settings.pdf_path):
+        urllib.request.urlretrieve("https://github.com/chatgpt-kr/openai-api-tutorial/raw/main/ch07/2020_%EA%B2%BD%EC%A0%9C%EA%B8%88%EC%9C%B5%EC%9A%A9%EC%96%B4%20700%EC%84%A0_%EA%B2%8C%EC%8B%9C.pdf", filename=settings.pdf_path)
+        print(f"[INFO] Successfully downloaded {settings.pdf_path}")
+
+    pdf_loader = PyPDFLoader(settings.pdf_path)
+    # === 모든 페이지를 한 번에 ===
+    docs = pdf_loader.load()
+    print(f"[INFO] [FROM PDF] ... Number of Loaded Documents : {len(docs)}")
+    # === 메모리 효율을 위해 페이지를 하나씩 yield하는 제너레이터를 반환
+    # for doc in pdf_loader.lazy_load():
+    #     print(doc.metadata["page"], doc.page_content[:50])
+
+    if "경제금융" in settings.pdf_name:
+        docs = pdf_preprocess(docs)
+
+    return docs
+
 
 def dir_loader():
     """디렉토리 안의 모든 *.md 파일을 Document로 로드"""
@@ -125,5 +153,9 @@ def load_github_md_docs(use_cache = True) -> list[Document]:
     return docs
 
 
-#docs = load_github_md_docs()
-#print(f"로딩된 Document 수: {len(docs)} (from {settings.github_repo})")
+if __name__ == "__main__":
+    # docs = load_github_md_docs()
+    #print(f"로딩된 Document 수: {len(docs)} (from {settings.github_repo})")
+
+    docs = pdf_loader()
+    print(f"로딩된 Document 수: {len(docs)})")

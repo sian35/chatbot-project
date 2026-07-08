@@ -43,16 +43,21 @@ class Settings(BaseSettings):
     judge_model: str = "gemini-3.1-flash-lite"
 
     # indexing 관련 설정
-    doc_source: str = "github"
+    doc_source: Literal["github", "dir", "pdf"]
 
     embedding_model: str = "models/gemini-embedding-001"
     persist_dir: str = str(BASE_DIR / "chroma_db") #"../chroma_db"
 
-    til_collection: str = "sian-til"
+    collection_name: str = "RAG-sian"
+    #collection_name: str = doc_source + "-sian"
+
     md_path: str = str(BASE_DIR / "sian-til" / "*.md") # "./sian-til/*.md"
     md_dir_path: str = str(BASE_DIR / "sian-til") #"./sian-til" # BASE_DIR가 pathlib.Path 객체라서 / 연산자로 경로를 이어붙이기 가능
     github_repo: str = "sian35/KTB4-Sian-TIL"
     github_token: str | None = None
+
+    pdf_name: str = "2020_경제금융용어_700선_게시.pdf"
+    pdf_path: str = str(BASE_DIR / pdf_name)
 
     eval_dataset_name: str = "sian-til-rag-eval"
 
