@@ -2,7 +2,7 @@
 ### Update 기록 
 | Date | Update 내용 | 파일 |
 |:---:|---|:---:|
-|260707|Github에서 `.md` 문서 로딩 추가|data_loader.py|
+|260707|Github에서 `.md` 문서 로더 추가|data_loader.py|
 
 ---
 ### Trouble Shooting

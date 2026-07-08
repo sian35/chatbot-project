@@ -4,14 +4,14 @@
 |:---:|---|:---:|:---:|
 |5| 다음 단어를 생성하는 Transformer Model을 이용해 챗봇을 구현한다.|✅|[회고]()|
 |6| 개인 프로젝트의 바닐라 RAG 시스템을 구현한다. |✅|[회고]()|
-|7| 개인 프로젝트의 RAG 시스템을 LangChain 기반으로 구현한다.|✅|[회고]()|
-|8| 개인 프로젝트의 RAG 시스템을 LangGraph 기반으로 구현한다.|✅|[회고]()|
+|7| 개인 프로젝트의 RAG 시스템을 LangChain 기반으로 구현한다.|✅|[회고](./docs/week7-retro.md)|
+|8| 개인 프로젝트의 RAG 시스템을 LangGraph 기반으로 구현한다.|✅|[회고](./docs/week8-retro.md)|
+|9| 개인 프로젝트에 멀티 Agent를 적용한다.|🔜|[회고](./docs/week9-retro.md)|
 
 ## 파일 구조
 ```
 chatbot-project/
 ├── docs/            회고 기록
-├── sian-til/        md 파일 목록
 ├── src/
 │    ├── dataset/
 │    │   ├── data_loader.py     Load Documents
@@ -72,3 +72,4 @@ uv run test.py --mode graph     # LangGraph 단일 쿼리 테스트
 uv run test.py --mode smith     # LangSmith 평가 테스트
 
 ```
+## 데이터 셋

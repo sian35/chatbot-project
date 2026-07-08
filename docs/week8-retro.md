@@ -12,7 +12,6 @@
 ```
 chatbot-project/
 ├── docs/            회고 기록
-├── sian-til/        md 파일 목록
 ├── src/
 │    ├── dataset/
 │    │   ├── data_loader.py     Load Documents
