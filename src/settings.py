@@ -11,13 +11,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Pydantic BaseSettings 로 통합 관리 : 실무에서 가장 권장되는 방식
 # 민감/비민감 정보를 나누되, 한 군데에서 타입 검증까지 하면서 관리하는 방식
 class Settings(BaseSettings):
-    # ── 민감 정보 (반드시 .env에서 채워져야 함, 기본값 없음) ──
+    # ── 민감 정보는 반드시 .env에서 채워져야 함, 기본값 없음 ──
     
+    '''
     langsmith_tracing: bool = False
     langsmith_endpoint: str
     langsmith_api_key: str | None = None  # 선택적 (트레이싱 안 쓰면 None)
     langsmith_project: str = "default"
-
+    
     # ── LLM Provider 선택 ──
     llm_provider: Literal["google", "ollama"]   # = "google"
 
@@ -29,30 +30,31 @@ class Settings(BaseSettings):
     ollama_model: str = "gemma4:e2b-mlx"
     ollama_base_url: str = "http://localhost:11434"
 
-
+    '''
     # ── Embedding Provider 선택 ──
     embedding_provider: Literal["hugging", "google"]
-    
-    # google 설정
-    google_embedding: str = "gemini-3.1-flash-lite"
 
-    # huggingface 설정
+    #google_embedding: str = "gemini-3.1-flash-lite"
+    embedding_model: str = "models/gemini-embedding-001"
     hugging_embedding: str = "BAAI/bge-m3"
+
 
     # judge llm 설정
     judge_model: str = "gemini-3.1-flash-lite"
 
+
     # indexing 관련 설정
     doc_source: Literal["github", "dir", "pdf"]
 
-    embedding_model: str = "models/gemini-embedding-001"
     persist_dir: str = str(BASE_DIR / "chroma_db") #"../chroma_db"
 
     collection_name: str = "RAG-sian"
     #collection_name: str = doc_source + "-sian"
-
+    
     md_path: str = str(BASE_DIR / "sian-til" / "*.md") # "./sian-til/*.md"
     md_dir_path: str = str(BASE_DIR / "sian-til") #"./sian-til" # BASE_DIR가 pathlib.Path 객체라서 / 연산자로 경로를 이어붙이기 가능
+
+    # github md파일 가져올 때 설정
     github_repo: str = "sian35/KTB4-Sian-TIL"
     github_token: str | None = None
 
