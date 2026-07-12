@@ -3,7 +3,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough #, RunnableParallel
 
-from src.dataset.vector_store import build_vector_store, build_retriever
+from src.dataset.vector_store import load_vector_store, build_retriever
 from src.model import build_llm
 
 #retriever는 문자열을 받아 List[Document]를 돌려주므로, 
@@ -35,7 +35,7 @@ def build_prompt():
 def build_rag_chain():
     print("[INFO] Start RAG Pipeline")
     # ===== 1. 저장된 크로마 디비 가져옴 =====
-    vectorstore = build_vector_store()
+    vectorstore = load_vector_store()
     retriever = build_retriever(vectorstore)
 
     # Augmented Generation을 위한 Prompt 구성

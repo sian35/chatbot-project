@@ -30,8 +30,47 @@ RuntimeError: Invalid buffer size: 21.98 GiB
 - 임베딩 모델이 임베딩할 때 입력 텍스트 길이에 비례해서 메모리를 사용한다.
 - 임베딩 모델의 최대 입력 길이 제한 (e.g., BGE-M3 : 8192 tokens)
 
+#### 또다른 해결법: 임베딩 모델 생성시 청크 사이즈 설정 -> 직접 해보기 필요 
+
 #### 3) 새롭게 알게 된 방법 : MarkdownHeaderTextSplitter
 
 #### 4) 결론 : 청킹은 선택이 아니라 필수이다. 
 청킹을 하지 않았던 이유는 문서들이 이미 주제별로 나뉘어져 있어서 청킹을 해서 문맥이 겹치게 되면 오히려 검색에 방해가 될 것이라고 생각했다.  
 하지만 임베딩 모델의 최대 입력 길이에 제한이 있고, 또한 오히려 문서 전체를 하나의 벡터로 만들면 전체에서 관련 내용을 찾아야 하기 때문에 검색도의 정확도가 떨어진다는 것을 알게 되었다.
+
+
+## 260712
+### Mac 파일 시스템(HFS+) 한글 유니코드 정규화 문제 
+pdf_name: str = "2026_경제금융용어_800선.pdf"
+#### 원인: NFC(완성형) vs NFD(분해형)
+파일명은 분해형, 검색어는 완성형 
+
+```
+print("경제금융" in settings.pdf_name)
+print(repr("경제금융"))
+print(repr(settings.pdf_name))
+
+print(unicodedata.normalize("NFC", "경제금융") in unicodedata.normalize("NFC", settings.pdf_name))
+# → True
+
+# NFD 분해형 문제
+print([hex(ord(c)) for c in "경제금융"])           # 검색어 유니코드
+print([hex(ord(c)) for c in settings.pdf_name[:6]])  # 파일명 앞부분 유니코드
+#  파일명이 분해형으로 되어있음
+```
+#### settings.py
+```
+    @field_validator("pdf_name")
+    @classmethod
+    def normalize_pdf_name(cls, v):
+        return unicodedata.normalize("NFC", v)
+```
+
+### Preprocessing
+pdf 내의 수식 처리 필요 
+```
+경제성장률(%) = 
+금년 실질GDP - 전년 실질GDP
+전년 실질GDP'
+```
+

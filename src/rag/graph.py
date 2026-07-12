@@ -10,7 +10,7 @@ from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 
 from src.prompts import SYSTEM_PROMPT, SYSTEM_PROMPT_LOCAL
-from src.dataset.vector_store import build_retriever, build_vector_store
+from src.dataset.vector_store import build_retriever, load_vector_store
 from src.model import build_llm
 from src.settings import settings
 
@@ -19,7 +19,7 @@ class State(TypedDict):
     context: list[Document] #reducer가 없으므로 노드가 반환하는 값으로 덮어쓰기된다. 매 질문마다 새로 검색한 문서로 교체
 
 def build_rag_graph():
-    vector_store = build_vector_store()
+    vector_store = load_vector_store()
     retriever = build_retriever(vector_store)
     
     llm = build_llm()
@@ -67,10 +67,18 @@ def build_rag_graph():
 
         if settings.llm_provider == "ollama":
             # 출처 직접 추가
-            sources = sorted(set(
+            
+            if settings.doc_source == "pdf":
+                sources = sorted(set(
+                doc.metadata.get('page','unknown') for doc in docs
+                ))
+                source_text = "\n\n[출처] " + ",".join(f"{p}페이지" for p in sources) #[출처] 모든 출처 페이지들 연결
+            else:
+                sources = sorted(set(
                 Path(doc.metadata.get('source','unknown')).name for doc in docs
-            ))
-            source_text = "\n\n[출처] " + ",".join(sources) # [출처] 모든 소스들 연결
+                ))
+                source_text = "\n\n[출처] " + ",".join(sources) # [출처] 모든 출처 파일명들 연결
+            
             response_text += source_text    # response_text의 맨 마지막에 source_text 추가
 
 

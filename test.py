@@ -3,10 +3,6 @@ import argparse
 
 from langchain_core.messages import HumanMessage
 
-from src.rag.chain import build_rag_chain
-from src.rag.graph import build_rag_graph
-from src.eval import eval_rag
-
 def main():
     parser = argparse.ArgumentParser(description="LangChain")
     parser.add_argument('--mode', choices=['smith', 'chain', 'graph'], help='Choose mode: LangChain, LangGraph, LangSmith')
@@ -16,17 +12,21 @@ def main():
     print(f"{args.mode} mode selected!")
 
     if args.mode == "smith":
+        from src.rag.chain import build_rag_chain
+        from src.eval import eval_rag
+
         rag = build_rag_chain()
         eval_result = eval_rag(rag)
         print("LangSmith Evaluation")
         print(f"{eval_result}")
     
     else:
-        keyword = input("TIL에서 알고 싶은 개념을 입력하세요: ")
+        keyword = input("검색하고 싶은 개념을 입력하세요: ")
         q = f"{keyword}란 무엇인가요?"
         print(f"Sample Question: {q}\n")
 
         if args.mode == "chain":
+            from src.rag.chain import build_rag_chain
             rag = build_rag_chain()
             result = rag.invoke(q)
 
@@ -34,6 +34,7 @@ def main():
             print()
             
         elif args.mode == "graph":
+            from src.rag.graph import build_rag_graph
             config = {"configurable": {"thread_id":"memory-user-001"}}
             graph = build_rag_graph()
             result = graph.invoke(

@@ -13,7 +13,7 @@ def build_embedding():
     if settings.embedding_provider == "google":
         from langchain_google_genai import GoogleGenerativeAIEmbeddings
         embeddings = GoogleGenerativeAIEmbeddings(
-            model=settings.embedding_model,
+            model=settings.google_embedding,
             google_api_key=settings.google_api_key,
         )
     else:
