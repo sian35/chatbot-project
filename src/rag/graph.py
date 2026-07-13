@@ -4,6 +4,7 @@ from pathlib import Path
 
 from langchain_core.documents import Document
 from langchain_core.messages import SystemMessage
+from langchain_core.tools import tool
 
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
@@ -17,6 +18,13 @@ from src.settings import settings
 class State(TypedDict):
     messages: Annotated[list, add_messages] # add_messages: reducer- 자동으로 리스트에 새로운 메시지를 append
     context: list[Document] #reducer가 없으므로 노드가 반환하는 값으로 덮어쓰기된다. 매 질문마다 새로 검색한 문서로 교체
+
+@tool
+def retrieve_economics_word(query:str)->str:
+    """경제용어를 검색하여 해당 용어에 대한 정보를 가져온다."""
+    docs = retriever.invoke(query)
+    return "\n\n".join([doc.page_content for doc in docs])
+
 
 def build_rag_graph():
     vector_store = load_vector_store()
@@ -48,6 +56,7 @@ def build_rag_graph():
             )
         return str(content) #예상 밖의 형태라면 str로 강제로 변환 : 방어선 코드
     
+    # 이것을 도구화?
     def retrieve(state: State):
         question = state["messages"][-1].content        #대화 이력 중 가장 최신 메시지를 질문으로 설정해서 검색기에 넣는다.
         return {"context": retriever.invoke(question)}  #검색 결과(Document 리스트)를 context에 담아서 반환한다.
