@@ -67,12 +67,48 @@ def load_pdf():
 
     return docs
 
-def load_pdf_bydocling():
+def renumber_pages(docs):
+    # docs.pages : 페이지 라는 단위 자체에 대한 메타정보를 담는 별도의 레지스트리 
+    remaining = sorted(docs.pages.keys())   #{18,19,...34}
+
+    mapping = {old: new for new, old in enumerate(remaining, start=1)}  # {old page: new page}
+    original_page_mapping = {new:old for old, new in mapping.items()}   # {new page: old page}
+
+    # 기존 docs.pages를 순회하면서 각 페이지 객체의 키만 새 번호로 바꿔치기한 새 딕셔너리를 만들어 통째로 재할당
+    docs.pages = {mapping[old]: page for old, page in docs.pages.items()}
+
+    # 페이지 객체의 키 값 수정 후의 items로 page_no 업데이트
+    for new_key, page_item in docs.pages.items():
+        page_item.page_no = new_key
+
+    # 텍스트, 표, 그림 등 모든 컨텐츠 아이템은 prov(provenance, 출처 정보)리스트를 갖고 있고, 각 prov 요소에 page_no와 bbox(좌표)가 들어있다.
+    # 실제로 해당 내용의 출처 페이지를 바꿔주는 부분
+    count=0
+    for item, _ in docs.iterate_items():
+        if getattr(item, "prov", None):
+            for prov in item.prov:
+                if prov.page_no in mapping:
+                    count+=1
+                    prov.page_no = mapping[prov.page_no]
+                    #print(type(item).__name__, item.text[:30] if hasattr(item, "text") else item.self_ref)
+    print("총", count, "개 아이템이 새 1페이지에 속함")
+
+    return docs, original_page_mapping
+
+def load_pdf_by_docling():
     from docling.document_converter import DocumentConverter
     converter = DocumentConverter()
-    result = converter.convert(settings.pdf_path)
-    md_output = result.document.export_to_markdown()
-    print(md_output[:800])
+    result = converter.convert(settings.pdf_path, page_range=(18,34))#, page_range=(18,-5)) #423
+    docs = result.document
+
+    docs, original_page_mapping =renumber_pages(docs)
+    # docs는 현재 Document 타입이 아닌 DoclingDocument 타입이다.
+    
+    #print(docs)
+
+    #md_output = renumbered_docs.export_to_markdown()
+    #print(md_output)
+    return docs
 
 
 def load_dir():
@@ -173,8 +209,15 @@ if __name__ == "__main__":
     # docs = load_github_md_docs()
     #print(f"로딩된 Document 수: {len(docs)} (from {settings.github_repo})")
 
-    docs = load_pdf()
-    #print(f"로딩된 Document 수: {len(docs)})")
-    print(docs[0].page_content)
-    print(f"표기된 페이지: {docs[0].metadata['page']}")
-    print(f"실제 페이지: {docs[0].metadata['source_page']}")
+    # docs = load_pdf()
+    # #print(f"로딩된 Document 수: {len(docs)})")
+    # print(docs[0].page_content)
+    # print(f"표기된 페이지: {docs[0].metadata['page']}")
+    # print(f"실제 페이지: {docs[0].metadata['source_page']}")
+
+    docs =load_pdf_by_docling()
+
+    from docling_core.types.doc.document import DocItemLabel
+    for item, _ in docs.iterate_items():
+        if hasattr(item, "label") and item.label==DocItemLabel.FORMULA:
+            print(repr(item.text))  # LaTex 텍스트인지, 깨진 문자인지 확인

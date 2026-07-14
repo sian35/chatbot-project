@@ -74,3 +74,29 @@ pdf 내의 수식 처리 필요
 전년 실질GDP'
 ```
 
+## 260714
+### Docling 으로 로드시 DoclingDocument 객체로 로드됨.
+LangGraph에 사용하기 위해서는 Document 객체로의 변환이 필요하다.
+
+예시
+```python
+def docling_to_documents_by_page(doc, source_path):
+    documents = []
+    for page_no in sorted(doc.pages.keys()):
+        page_doc = extract_single_page_doc(doc, page_no)   # 해당 페이지 아이템만 남긴 서브 트리
+        documents.append(
+            Document(
+                page_content=page_doc.export_to_markdown(),
+                metadata={"source": source_path, "page": page_no - 1},
+            )
+        )
+    return documents
+```
+
+Document 객체로 변환 후 chunking 적용?
+
+### Docling converter에 수식 옵션을 줘야 수식 영역이 제대로 변환됨
+do_formula_enrichment=True
+
+#### Issue
+메모리 사용량 급증 -> 수식을 위해 감수할 가치가 있나?

@@ -37,7 +37,7 @@ def main():
             from src.rag.graph import build_rag_graph
             config = {"configurable": {"thread_id":"memory-user-001"}}
             graph = build_rag_graph()
-            result = graph.invoke(
+            result = graph.stream(  # invoke
                 {"messages": [HumanMessage(content=q)]},
                 config  # checkpointer 사용중이라 필수
             )
@@ -45,6 +45,13 @@ def main():
 
             print(f"Answer:\n{answer}")
             print()
+
+            #graph visualize
+            graph_view = graph.get_graph()
+            mermaid_text = graph_view.draw_mermaid
+            print(mermaid_text)
+
+            graph_view.print_ascii()
     
 if __name__ == "__main__":
     main()
