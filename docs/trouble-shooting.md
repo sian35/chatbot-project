@@ -75,7 +75,7 @@ pdf 내의 수식 처리 필요
 ```
 
 ## 260714
-### Docling 으로 로드시 DoclingDocument 객체로 로드됨.
+### 1. Docling 으로 로드시 DoclingDocument 객체로 로드됨.
 LangGraph에 사용하기 위해서는 Document 객체로의 변환이 필요하다.
 
 예시
@@ -83,10 +83,11 @@ LangGraph에 사용하기 위해서는 Document 객체로의 변환이 필요하
 def docling_to_documents_by_page(doc, source_path):
     documents = []
     for page_no in sorted(doc.pages.keys()):
-        page_doc = extract_single_page_doc(doc, page_no)   # 해당 페이지 아이템만 남긴 서브 트리
+        page_doc = extract_single_page_doc(doc, page_no)
+        # 해당 페이지 아이템만 남긴 서브 트리
         documents.append(
             Document(
-                page_content=page_doc.export_to_markdown(),
+                page_content=page_doc.export_to_markdown(),#페이지 하나씩 마크다운
                 metadata={"source": source_path, "page": page_no - 1},
             )
         )
@@ -95,8 +96,11 @@ def docling_to_documents_by_page(doc, source_path):
 
 Document 객체로 변환 후 chunking 적용?
 
-### Docling converter에 수식 옵션을 줘야 수식 영역이 제대로 변환됨
+### 2. Docling converter에 수식 옵션을 줘야 수식 영역이 제대로 변환됨
 do_formula_enrichment=True
 
 #### Issue
-메모리 사용량 급증 -> 수식을 위해 감수할 가치가 있나?
+- 단순 수학적 수식이 아니라 한국어 용어로 표현된 수식이라 do_formula_enrichment만으로 읽어올 수 없다.
+- 일렬로 정의된 수식은 텍스트 형태로도 충분히 잘 읽혀옴
+- 분수 형태가 문제가 됨. 
+- 표와 이미지도 pdf 에 포함이 되어있음
