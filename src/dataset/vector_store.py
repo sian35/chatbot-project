@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 
 from src.settings import settings
-from src.dataset.data_loader import load_dir, chunking, load_github, load_pdf
+from src.dataset.data_loader import chunking, load_dir, load_github, load_pdf
 from src.model import build_embedding
 
 #load_dotenv()
@@ -12,7 +12,7 @@ def initial_indexing():
 
     print("[INFO] ---- 새 인덱스 생성 시작 ---- ")
     embeddings = build_embedding()
-    #docs, split_docs = md_loader()
+
     if settings.doc_source == "dir":
         docs = load_dir()
         
@@ -24,18 +24,19 @@ def initial_indexing():
 
     # Chunking 필수
     split_docs = chunking(docs)
+
     # ====== Vector DB 디렉토리 없으면 생성 ======
     if not os.path.exists(settings.persist_dir):
         os.makedirs(settings.persist_dir)
 
     # ====== 영구 저장 모드 ======
-    vectDB_name = settings.collection_name+settings.doc_source
-    print(vectDB_name)
-    # from_documents: 생성과 추가 동시에 
+    collection_name = settings.collection_name + settings.doc_source
+    print(collection_name)
+    # from_documents: 생성과 동시에 추가 
     vectorstore = Chroma.from_documents(
         split_docs,
         embeddings,
-        collection_name=vectDB_name, # 한 persist_directory 안에 여러 컬렉션을 분리 저장할 수 있다
+        collection_name=collection_name, # 한 persist_directory 안에 여러 컬렉션을 분리 저장할 수 있다
         persist_directory=settings.persist_dir, # Chroma가 해당 폴더에 SQLite 파일로 인덱스를 저장. 프로세스를 다시 시작해도 이 폴더에서 인덱스를 다시 열 수 있다.
     )
 
@@ -94,15 +95,15 @@ def load_vector_store():
     print(f"Documents Source from : {settings.doc_source}")
     # Embedding model
     embeddings = build_embedding()
-    vectDB_name = settings.collection_name+settings.doc_source
+    collection_name = settings.collection_name+settings.doc_source
     #print(vectDB_name)
     # ====== Vector DB 존재 확인하고 Indexing 새로 하거나, 기존 Vector DB 로드 ======
     if os.path.exists(os.path.join(settings.persist_dir, "chroma.sqlite3")):
         # ====== Vector DB 존재하면, 기존 인덱스 로드 (from_documents 호출 없이) ======
         vectorstore = Chroma(
-            collection_name=vectDB_name,
+            collection_name=collection_name,
             persist_directory=settings.persist_dir,
-            embedding_function=embeddings,  #embedding_function=embeddings는 새 질의를 벡터로 변환할 때 사용할 임베딩 모델
+            embedding_function=embeddings,  # 새 질의를 벡터로 변환할 때 사용할 임베딩 모델
             # 저장된 문서 벡터는 처음 인덱싱할 때 사용한 임베딩 모델 기준으로 만들어졌습니다. 따라서 다시 검색할 때도 같은 임베딩 모델을 사용해야 합니다.
         )
         return vectorstore  #.as_retriever(search_kwargs={"k":3})
@@ -110,7 +111,7 @@ def load_vector_store():
         raise ValueError
 
 def build_retriever(vectorstore):
-    return vectorstore.as_retriever(search_kwargs={"k":3}) 
+    return vectorstore.as_retriever(search_kwargs={"k":3}) # k: 가져올 검색 결과 개수, 검색 결과를 항상 List[Document] 형태로 반환한다.
 # 내부적으로 저장된 embeddings 객체를 그대로 쿼리 임베딩에도 사용됨
 
 

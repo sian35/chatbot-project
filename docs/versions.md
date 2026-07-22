@@ -34,7 +34,7 @@
 [Supervisor Agent]  ← 질문을 분석해서 적절한 Agent에 라우팅
     ↓
 ┌───────────────────────────────────────┐
-│  RAG Agent  │  금옹 계산 Agent  │  뉴스 Agent  │  ...  │
+│  RAG Agent  │  금융 계산 Agent  │  뉴스 Agent  │  ...  │
 └───────────────────────────────────────┘
     ↓
 최종 답변 생성
@@ -50,6 +50,12 @@ Supervisor (Agent Node)
     ├── calc_tool (Tool Node)      ← 단순 계산
     └── compare_tool (Tool Node)   ← 단순 비교
 ```
+
+### 단계별 구현
+|단계|목표|
+|:---:|---|
+|1단계|하나의 그래프인 RAG를 Agent화 |
+
 
 ### 가장 어려운 지점
 수식 로드 &rarr; 금융 계산과 관련 있음

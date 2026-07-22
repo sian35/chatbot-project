@@ -20,11 +20,11 @@ class QueryResponse(BaseModel):
 
 
 # Lifespan : 앱 생명주기 관리
-# FastAPI 앱 초기화 시점에 인덱싱 + RAG Graph 구성
 
 # ===== LangGraph ======
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+  # FastAPI 앱 초기화 시점에 인덱싱 + RAG 그래프 구성
   app.state.graph = build_rag_graph()
   yield
 
@@ -37,10 +37,10 @@ app = FastAPI(lifespan=lifespan)
 # 이 코루틴 객체는 await되거나 이벤트 루프에 의해 스케줄링 되어야 실제로 실행된다.
 @app.post("/query", response_model=QueryResponse)
 def query(req: QueryRequest):
-  thread_id = req.thread_id or str(uuid.uuid4())
+  thread_id = req.thread_id or str(uuid.uuid4())  # 랜덤 UUID 생성
   result = app.state.graph.invoke(
     {"messages": [HumanMessage(content=req.question)]},
     config = {"configurable": {"thread_id": thread_id}}
   )
-  answer = result["messages"][-1].content
+  answer = result["messages"][-1].content # 응답이 메시지 이력의 맨 뒤에 append 되어 있기 때문에 [-1]로 가져옴
   return QueryResponse(answer=answer, thread_id = thread_id)
