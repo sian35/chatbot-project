@@ -52,9 +52,12 @@ Supervisor (Agent Node)
 ```
 
 ### 단계별 구현
-|단계|목표|
-|:---:|---|
-|1단계|하나의 그래프인 RAG를 Agent화 |
+|단계|목표|달성|
+|:---:|---||
+|버전 1|하나의 그래프인 RAG|✅|
+|버전 2|Retriever Graph 를 React pattern 적용하여 Tool을 이용해 검색 정확도 높이기||
+|버전 3|Retriever Graph를 하나의 Agent로||
+|버전 4|Multi-Agent : Agent 추가||
 
 
 ### 가장 어려운 지점
