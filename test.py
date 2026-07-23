@@ -24,8 +24,9 @@ def main():
         print(f"{eval_result}")
     
     else:
-        keyword = input("검색하고 싶은 개념을 입력하세요: ")
-        q = f"{keyword}(이)란 무엇인가요?"
+        # keyword = input("검색하고 싶은 개념을 입력하세요: ")
+        # q = f"{keyword}(이)란 무엇인가요?"
+        q = input("무엇이 궁금한가요?: ")
         print(f"Sample Question: {q}\n")
 
         if args.mode == "chain":
@@ -42,28 +43,31 @@ def main():
             graph = build_rag_graph()
 
             # 답변 한 번에 invoke
-            # result = graph.invoke(
-            #     {"messages": [HumanMessage(content=q)]},
-            #     config  # checkpointer 사용중이라 필수
-            # )
-            #answer = result["messages"][-1].content
-            #print(f"Answer:\n{answer}")
-            #print()
+            result = graph.invoke(
+                {"messages": [HumanMessage(content=q)]},
+                config  # checkpointer 사용중이라 필수
+            )
+            answer = result["messages"][-1].content
+            print(f"Answer:\n{answer}")
+            print()
 
             # 답변에 Streaming 적용
-            for chunk, metadata in graph.stream(
-                {"messages": [HumanMessage(content=q)]},
-                config,  # checkpointer 사용중이라 필수
-                stream_mode="messages"
-            ):
-                if metadata["langgraph_node"]=="generate" and chunk.content:
-                    #print(chunk.content, end='', flush=True) # 한 토큰씩 프린트
-                    buffer.append(chunk.content)    # BUFFER_SIZE 토큰씩 프린트
-                if len(buffer) >= BUFFER_SIZE:
-                    print("".join(buffer), end="", flush=True)
-                    buffer.clear()
+            # print(f"Answer:\n")
+            # for chunk, metadata in graph.stream(
+            #     {"messages": [HumanMessage(content=q)]},
+            #     config,  # checkpointer 사용중이라 필수
+            #     stream_mode="messages"
+            # ):
+            #     if metadata["langgraph_node"]=="generate" and chunk.content:
+            #         #print(chunk.content, end='', flush=True) # 한 토큰씩 프린트
+            #         buffer.append(chunk.content)    # BUFFER_SIZE 토큰씩 프린트
+            #     if len(buffer) >= BUFFER_SIZE:
+            #         print("".join(buffer), end="", flush=True)
+            #         buffer.clear()
+            # print()
+            # 문제: 출처 표시가 안됨
 
-            print()
+            
 
             #graph visualize
             # graph_view = graph.get_graph()

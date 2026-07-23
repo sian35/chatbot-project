@@ -23,3 +23,8 @@ venv/
 # DB
 chroma_db/
 *.sqlite3
+
+# Docker
+.dockerignore
+DockerFile
+docker-compose.yml

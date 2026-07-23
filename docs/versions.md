@@ -59,6 +59,27 @@ Supervisor (Agent Node)
 |버전 3|Retriever Graph를 하나의 Agent로||
 |버전 4|Multi-Agent : Agent 추가||
 
+#### 버전 1
+```mermaid
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+        __start__([<p>__start__</p>]):::first
+        retrieve(retrieve)
+        generate(generate)
+        __end__([<p>__end__</p>]):::last
+        __start__ --> retrieve;
+        retrieve --> generate;
+        generate --> __end__;
+        classDef default fill:#f2f0ff,line-height:1.2
+        classDef first fill-opacity:0
+        classDef last fill:#bfb6fc
+```
+##### 고민1
+> 검색 정확도 향상을 위해 Retrieve와 
 
 ### 가장 어려운 지점
 수식 로드 &rarr; 금융 계산과 관련 있음
