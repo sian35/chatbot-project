@@ -76,7 +76,7 @@ PID COMMAND %CPU TIME #TH #WQ #POR MEM PURG CMPRS PGRP PPID STATE BOOSTS %CPU_ME
 4. 캡처 중지
 5. 디스플레이 필터 : http 검색 : HTTP 요청/응답 패킷만 필터링됨.
 
-![alt text](<./images/01.png>)
+![alt text](<./images/week10_01.png>)
 
 6. POST /query 패킷을 우클릭 -> Follow -> HTTP Stream
 - 요청 헤더 전체
@@ -85,7 +85,7 @@ PID COMMAND %CPU TIME #TH #WQ #POR MEM PURG CMPRS PGRP PPID STATE BOOSTS %CPU_ME
 - 응답 바디 
 요청은 빨강, 응답은 파랑
 
-![alt text](<./images/02.png>)
+![alt text](<./images/week10_02.png>)
 
 ### 2) 서버와 클라이언트가 다른 컴퓨터
 `uvicorn main:app --host 0.0.0.0 --port 8000`
@@ -106,9 +106,9 @@ curl -X POST http://192.168.0.3:8000/query \
 ```
 6. 캡처 결과 확인
 
-![alt text](<./images/03.png>)
+![alt text](<./images/week10_03.png>)
 
-![alt text](<./images/04.png>)
+![alt text](<./images/week10_04.png>)
 
 
 ## 회고
